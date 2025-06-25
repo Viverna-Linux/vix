@@ -6,5 +6,5 @@ class RemoveCommand(SubCommand):
     def get_desc(self) -> str:
         return "Removes existing packages and (optionally) their dependencies"
     
-    def run(self, args: list[str], flags: list[str]):
+    def run(self, args):
         print("remove command called!")

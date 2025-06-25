@@ -6,5 +6,5 @@ class SyncCommand(SubCommand):
     def get_desc(self) -> str:
         return "Retrieves data relating to packages into the local system"
     
-    def run(self, args: list[str], flags: list[str]):
+    def run(self, args):
         print("sync command called!")
