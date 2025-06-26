@@ -1,15 +1,12 @@
 import tempfile
 import tomllib
-
-PACKAGE_DATABASE = "/var/db/vix"
+from utils import get_repo_data
 
 class PackageGet:
-    def __init__(self, name: str, build_data: str):
-        self.name: str = name
-        self.build_data: dict = tomllib.loads(build_data)
+    def __init__(self, repo_path: str):
+        self.manifest = tomllib.loads(get_repo_data(repo_path+"/metadata.toml"))
     
     def unpack(self):
-        packages = self.build_data["packages"]
-        stage1 = packages["stage1"]
+        
         
     

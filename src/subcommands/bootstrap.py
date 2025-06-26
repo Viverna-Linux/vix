@@ -1,6 +1,7 @@
 import sys
+import tomllib
 from subcommands import SubCommand
-from utils import confirm
+from utils import confirm, PACKAGE_DATABASE, get_repo_path, get_repo_data
 
 class BootstrapCommand(SubCommand):
     def get_name(self) -> str:
@@ -8,7 +9,7 @@ class BootstrapCommand(SubCommand):
     def get_desc(self) -> str:
         return "Bootstraps a Stage 3 Viverna Tarball"
     def setup_usage(self):
-        pass
+        self.argparse.add_argument("--repo", help="Specifies a different local clone of a package repository (FOR TESTING ONLY!)")
 
     def run(self, args):
         print("""\x1b[1mYou are about to bootstrap a Viverna system and compress it into a tarball
@@ -22,4 +23,7 @@ or if you are automating this process in a pipeline.
         \x1b[0m""")
         if not confirm("Proceed?"):
             sys.exit(0)
-        
+        if args.repo is not None:
+            PACKAGE_DATABASE.value = args.repo
+        bootstrap = tomllib.loads(get_repo_data("bootstrap.toml"))
+        print(bootstrap["packages"]["stage1"])
