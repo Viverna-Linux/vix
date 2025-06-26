@@ -1,6 +1,27 @@
 import os
+import sys
 from dataclasses import dataclass
 from typing import Any
+
+class ProgressBar:
+    def __init__(self, msg: str):
+        self.msg: str = msg
+        self.first_draw: bool = True
+    def update_progress(self, progress: float):
+        """Redraws the progress bar on the terminal, progress is a value from 0.0 to 1.0"""
+        width = 80
+        try:
+            width = os.get_terminal_size().columns
+        finally:
+            pass
+        if not self.first_draw:
+            sys.stderr.write("\x1b[1A")
+        else:
+            self.first_draw = False
+        pos = int(width*progress)
+        final_msg = self.msg+(" "*width-len(self.msg))
+        final_msg = "\x1b[47;30m"+final_msg[0:pos]+"\x1b[0m"+final_msg[pos:]
+        print(final_msg,file=sys.stderr)
 
 @dataclass
 class SharedGlobal:

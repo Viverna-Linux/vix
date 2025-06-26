@@ -2,6 +2,7 @@ import sys
 import tomllib
 from subcommands import SubCommand
 from utils import confirm, PACKAGE_DATABASE, get_repo_path, get_repo_data
+from package import PackageGet
 
 class BootstrapCommand(SubCommand):
     def get_name(self) -> str:
@@ -26,4 +27,6 @@ or if you are automating this process in a pipeline.
         if args.repo is not None:
             PACKAGE_DATABASE.value = args.repo
         bootstrap = tomllib.loads(get_repo_data("bootstrap.toml"))
-        print(bootstrap["packages"]["stage1"])
+        for pkg in bootstrap["packages"]["stage1"]:
+            pkgver = pkg.split(" ")
+            PackageGet(pkgver[0],pkgver[1]).build()
