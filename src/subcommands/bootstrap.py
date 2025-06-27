@@ -1,7 +1,9 @@
 import sys
 import tomllib
+import tempfile
+import os
 from subcommands import SubCommand
-from utils import confirm, PACKAGE_DATABASE, get_repo_path, get_repo_data
+from utils import confirm, PACKAGE_DATABASE, SYSTEM_ROOT, get_repo_data
 from package import PackageGet
 
 class BootstrapCommand(SubCommand):
@@ -26,6 +28,9 @@ or if you are automating this process in a pipeline.
             sys.exit(0)
         if args.repo is not None:
             PACKAGE_DATABASE.value = args.repo
+        stage1 = os.path.join(tempfile.gettempdir(),"stage1")
+        os.makedirs(stage1, exist_ok=True)
+        SYSTEM_ROOT.value = stage1
         bootstrap = tomllib.loads(get_repo_data("bootstrap.toml"))
         for pkg in bootstrap["packages"]["stage1"]:
             pkgver = pkg.split(" ")

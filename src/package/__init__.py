@@ -1,15 +1,29 @@
 import tempfile
 import tomllib
 import sys
+import os
 import urllib.request
-from utils import get_repo_data
+import shutil
+import subprocess
+from utils import get_repo_data, ProgressBar, setup_env, TARGET_TRIPLET, SYSTEM_ROOT, post_status
 
 class PackageGet:
     def __init__(self, repo_path: str, version: str | None):
         self.manifest: dict = tomllib.loads(get_repo_data(repo_path+"/metadata.toml"))
         self.build_info: dict = tomllib.loads(get_repo_data(repo_path+"/build-"+(version if version is not None else self.manifest["package"]["latest-version"])+".toml"))
-    
-    def build(self):
+        self.version = version
+
+    def build(self) -> list[str]:
+        progress_bar: ProgressBar = None
+        pkg_name = self.manifest["package"]["name"]+" "+self.version
+        workspace = tempfile.mkdtemp()
+        install = tempfile.mkdtemp()
+        env = {
+            "WORKSPACE": workspace,
+            "INSTALL": install,
+            "ROOT": SYSTEM_ROOT.value,
+            "TARGET": TARGET_TRIPLET,
+        }
         src_url = ""
         try:
             src_url = self.build_info["metadata"]["source-url"]
@@ -17,5 +31,43 @@ class PackageGet:
             pass
         if len(src_url) > 0:
             src_archive = tempfile.gettempdir()+"/"+src_url.split("/")[-1]
-            urllib.request.urlretrieve(self.build_info["metadata"]["source-url"],src_archive)
-        
+            progress_bar = ProgressBar("Download "+pkg_name)
+            progress_bar.update_progress(0)
+            urllib.request.urlretrieve(self.build_info["metadata"]["source-url"],src_archive, lambda blk,blksize,filesize: progress_bar.update_progress(float(blk*blksize)/filesize))
+            progress_bar = ProgressBar("Extract "+pkg_name,True)
+            progress_bar.start_spinner()
+            shutil.unpack_archive(src_archive,workspace)
+            os.remove(src_archive)
+            progress_bar.stop_spinner()
+        # We can finally start building!
+        failed = False
+        while not failed:
+            if self.build_info.get("build",None) is None:
+                break
+            post_status("Configure "+pkg_name)
+            if subprocess.run(setup_env(env)+self.build_info["build"].get("configure",""),shell=True,executable="/bin/bash",cwd=workspace).returncode > 0:
+                failed = True
+                break
+            post_status("Build "+pkg_name)
+            if subprocess.run(setup_env(env)+self.build_info["build"].get("build",""),shell=True,executable="/bin/bash",cwd=workspace).returncode > 0:
+                failed = True
+                break
+            post_status("Finalize "+pkg_name)
+            if subprocess.run(setup_env(env)+self.build_info["build"].get("install",""),shell=True,executable="/bin/bash",cwd=workspace).returncode > 0:
+                failed = True
+                break
+            break
+        if not failed:
+            # Install files to root
+            progress_bar = ProgressBar("Install "+pkg_name,True)
+            progress_bar.start_spinner()
+            shutil.copytree(install,SYSTEM_ROOT.value, dirs_exist_ok=True)
+            progress_bar.stop_spinner()
+        # Cleanup
+        progress_bar = ProgressBar("Cleanup "+pkg_name,True)
+        progress_bar.start_spinner()
+        shutil.rmtree(workspace)
+        shutil.rmtree(install)
+        progress_bar.stop_spinner()
+        if failed:
+            sys.exit(1)
