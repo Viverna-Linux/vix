@@ -57,6 +57,11 @@ def confirm(question: str) -> bool:
 
 PACKAGE_DATABASE = SharedGlobal("/var/db/vix")
 TARGET_TRIPLET = subprocess.run(["gcc", "-dumpmachine"], capture_output=True).stdout.decode("utf-8").splitlines()[0]
+CROSS_TARGET_TRIPLET = ""
+if TARGET_TRIPLET is not None:
+    split = TARGET_TRIPLET.split("-")
+    split.insert(1,"viverna")
+    CROSS_TARGET_TRIPLET = "-".join(split)
 SYSTEM_ROOT = SharedGlobal("/")
 
 def get_repo_path(package_path: str) -> str:

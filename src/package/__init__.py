@@ -5,7 +5,7 @@ import os
 import urllib.request
 import shutil
 import subprocess
-from utils import get_repo_data, ProgressBar, setup_env, TARGET_TRIPLET, SYSTEM_ROOT, post_status
+from utils import get_repo_data, ProgressBar, setup_env, CROSS_TARGET_TRIPLET, TARGET_TRIPLET, SYSTEM_ROOT, post_status
 
 class PackageGet:
     def __init__(self, repo_path: str, version: str | None):
@@ -23,6 +23,7 @@ class PackageGet:
             "INSTALL": install,
             "ROOT": SYSTEM_ROOT.value,
             "TARGET": TARGET_TRIPLET,
+            "CROSS_TARGET": CROSS_TARGET_TRIPLET,
         }
         src_url = ""
         try:
