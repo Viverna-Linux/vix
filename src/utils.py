@@ -60,7 +60,8 @@ TARGET_TRIPLET = subprocess.run(["gcc", "-dumpmachine"], capture_output=True).st
 CROSS_TARGET_TRIPLET = ""
 if TARGET_TRIPLET is not None:
     split = TARGET_TRIPLET.split("-")
-    split.insert(1,"viverna")
+    if split[1] != "viverna":
+        split.insert(1,"viverna")
     CROSS_TARGET_TRIPLET = "-".join(split)
 SYSTEM_ROOT = SharedGlobal("/")
 
@@ -80,5 +81,6 @@ def setup_env(vars: dict[str, Any]) -> str:
 """
     for key, val in vars.items():
         res = res + key + "=" + pprint.saferepr(val) + "\n"
+    res = res + "PATH=$ROOT/tools/bin:$PATH\n"
     return res
     

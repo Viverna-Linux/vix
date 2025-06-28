@@ -22,7 +22,7 @@ class PackageGet:
             "WORKSPACE": workspace,
             "INSTALL": install,
             "ROOT": SYSTEM_ROOT.value,
-            "TARGET": TARGET_TRIPLET,
+            "HOST_TARGET": TARGET_TRIPLET,
             "CROSS_TARGET": CROSS_TARGET_TRIPLET,
         }
         src_url = ""
