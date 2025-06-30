@@ -11,7 +11,7 @@ class GetCommand(SubCommand):
         self.argparse.add_argument("-u", "--update", action="store_true", help="Updates the specified package(s)")
         self.argparse.add_argument("-r", "--rebuild", action="store_true", help="Rebuild existing package(s)")
         self.argparse.add_argument("-p", "--pretend", action="store_true", help="Simulates a \"vix get\" operation without performing it")
-        
+
         self.argparse.add_argument("packages", nargs="+", help="The packages to get")
 
     def run(self, args):

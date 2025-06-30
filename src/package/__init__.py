@@ -46,15 +46,15 @@ class PackageGet:
             if self.build_info.get("build",None) is None:
                 break
             post_status("Configure "+pkg_name)
-            if subprocess.run(setup_env(env)+self.build_info["build"].get("configure",""),shell=True,executable="/bin/bash",cwd=workspace).returncode > 0:
+            if subprocess.run(setup_env(env)+self.build_info["build"].get("configure",""),shell=True,executable="/bin/bash",cwd=workspace,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode > 0:
                 failed = True
                 break
             post_status("Build "+pkg_name)
-            if subprocess.run(setup_env(env)+self.build_info["build"].get("build",""),shell=True,executable="/bin/bash",cwd=workspace).returncode > 0:
+            if subprocess.run(setup_env(env)+self.build_info["build"].get("build",""),shell=True,executable="/bin/bash",cwd=workspace,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode > 0:
                 failed = True
                 break
             post_status("Finalize "+pkg_name)
-            if subprocess.run(setup_env(env)+self.build_info["build"].get("install",""),shell=True,executable="/bin/bash",cwd=workspace).returncode > 0:
+            if subprocess.run(setup_env(env)+self.build_info["build"].get("install",""),shell=True,executable="/bin/bash",cwd=workspace,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode > 0:
                 failed = True
                 break
             break
@@ -71,4 +71,5 @@ class PackageGet:
         shutil.rmtree(install)
         progress_bar.stop_spinner()
         if failed:
+            
             sys.exit(1)
