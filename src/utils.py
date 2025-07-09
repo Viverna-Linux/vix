@@ -34,6 +34,7 @@ class ProgressBar:
             self.first_draw = False
         pos = int(width*progress)
         spinner_syms = ["/","-","\\","|"]
+        sys.stderr.write(f"\x1b]2;{self.msg}\x07")
         m = self.msg+" | "+((str(int(round(progress,2)*100))+"%") if not self.spinner else "["+spinner_syms[self.spinner_index]+"]")
         final_msg = m+" "*(width-len(m))
         final_msg = "\x1b[1;47;30m"+final_msg[0:pos]+"\x1b[0;1m"+final_msg[pos:]+"\x1b[0m"
@@ -45,6 +46,7 @@ def _do_spinner(pbar: ProgressBar):
         time.sleep(0.25)
     pbar.update_progress(1)
 def post_status(msg: str):
+    sys.stderr.write(f"\x1b]2;{msg}\x07")
     print("\x1b[0;1m"+msg+"\x1b[0m", file=sys.stderr)
 
 @dataclass
