@@ -58,13 +58,11 @@ def confirm(question: str) -> bool:
     return input(f"{question} (\x1b[1;32my\x1b[0;1m/\x1b[31mn\x1b[0m) ").lower() == "y"
 
 PACKAGE_DATABASE = SharedGlobal("/var/db/vix")
-TARGET_TRIPLET = subprocess.run(["gcc", "-dumpmachine"], capture_output=True).stdout.decode("utf-8").splitlines()[0]
+TARGET_TRIPLET = subprocess.run("gcc -dumpmachine", capture_output=True, shell=True,executable="/bin/bash").stdout.decode("utf-8").splitlines()[0]
 CROSS_TARGET_TRIPLET = ""
 if TARGET_TRIPLET is not None:
     split = TARGET_TRIPLET.split("-")
-    if split[1] != "viverna":
-        split.insert(1,"viverna")
-    CROSS_TARGET_TRIPLET = "-".join(split)
+    CROSS_TARGET_TRIPLET = split[0]+"-viverna-linux-gnu"
 SYSTEM_ROOT = SharedGlobal("/")
 
 def get_repo_path(package_path: str) -> str:
