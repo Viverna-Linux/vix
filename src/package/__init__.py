@@ -63,9 +63,17 @@ class PackageGet:
             # Install files to root
             progress_bar = ProgressBar("Install "+pkg_name,True)
             progress_bar.start_spinner()
+            if not self.build_info["metadata"].get("bootstrap-oneshot", False):
+                category = pkg_name.split("/")[0]
+                instlistpath = os.path.join(SYSTEM_ROOT.value,"var/db/vix/instfiles",category)
+                if not os.path.exists(instlistpath):
+                    os.makedirs(instlistpath,exist_ok=True)
+                subprocess.run(f"find -mindepth 1 -printf \"%p:%y\\n\" | cut -c 2- > {os.path.join(instlistpath,self.manifest["package"]["name"].split("/")[1])}",shell=True,executable="/bin/bash",cwd=install)
             shutil.copytree(install,SYSTEM_ROOT.value, dirs_exist_ok=True)
             progress_bar.stop_spinner()
-        # Cleanup
+            if self.build_info["build"].get("post-install","") != "":
+                post_status("Post-install "+pkg_name)
+                subprocess.run(setup_env(env)+self.build_info["build"].get("post-install",""),shell=True,executable="/bin/bash",cwd=SYSTEM_ROOT.value)
         progress_bar = ProgressBar("Cleanup "+pkg_name,True)
         progress_bar.start_spinner()
         shutil.rmtree(workspace)

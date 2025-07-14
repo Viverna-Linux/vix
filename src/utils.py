@@ -57,7 +57,7 @@ class SharedGlobal:
 def confirm(question: str) -> bool:
     return input(f"{question} (\x1b[1;32my\x1b[0;1m/\x1b[31mn\x1b[0m) ").lower() == "y"
 
-PACKAGE_DATABASE = SharedGlobal("/var/db/vix")
+PACKAGE_DATABASE = SharedGlobal("/var/db/vix/pkgrepo")
 TARGET_TRIPLET = subprocess.run("gcc -dumpmachine", capture_output=True, shell=True,executable="/bin/bash").stdout.decode("utf-8").splitlines()[0]
 CROSS_TARGET_TRIPLET = ""
 if TARGET_TRIPLET is not None:

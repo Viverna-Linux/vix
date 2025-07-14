@@ -29,7 +29,7 @@ or if you are automating this process in a pipeline.
             sys.exit(0)
         if args.repo is not None:
             PACKAGE_DATABASE.value = args.repo
-        stage1 = os.path.join(tempfile.gettempdir(),"stage1-2")
+        stage1 = os.path.join(tempfile.gettempdir(),"rootfs")
         try:
             shutil.rmtree(stage1)
         except FileNotFoundError as _:
